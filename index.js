@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const generatePassword = require('password-generator');
+const axios = require('axios');
 
 const app = express();
 
@@ -27,6 +28,31 @@ app.get('/api/passwords', (req, res) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname+'/client/build/index.html'));
 });
+
+app.get('/cors-handler', async(req, res) => {
+  const url = req.query.url;
+  const body = req.query.body;
+  console.log(url);
+  console.log(body);
+  return;
+  try{
+    const data = await axios.get(url);
+  }catch(e){
+    console.log('got error', e);
+  }
+})
+
+app.post('/cors-handler', async(req, res) => {
+  const url = req.body.url;
+  const body = req.body.body;
+  console.log(url);
+  console.log(body);
+  try{
+    const data = await axios.post(url);
+  }catch(e){
+    console.log('got error', e);
+  }
+})
 
 const port = process.env.PORT || 5000;
 app.listen(port);
