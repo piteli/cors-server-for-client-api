@@ -31,12 +31,80 @@ app.post('/api/okay/get-journey-id', async(req, res) => {
   const body = req.body;
   const username = body.username;
   const password = body.password;
-  try{
-    const response = await axios.post('https://ekycportaldemo.innov8tif.com/api/ekyc/journeyid', { username, password });
-    res.json(response);
-  }catch(e){
-    res.json(e);
+  axios({url : 'https://ekycportaldemo.innov8tif.com/api/ekyc/journeyid', method : 'POST',
+        data : JSON.stringify({username, password}), responseType : 'json', headers: {'Content-Type': 'application/json'}})
+        .then((result) => {
+          res.json(result.data);
+        }).catch((err) => {
+          console.log(err);
+        });
+})
+
+app.post('/api/okay/id', async(req, res) => {
+  const body = req.body;
+  const payload = {
+  "journeyId": body.journeyId,
+  "base64ImageString": body.base64ImageString,
+  "backImage": body.backImage,
+  "imageEnabled":body.imageEnabled,
+  "faceImageEnabled":body.faceImageEnabled,
+  "cambodia":body.cambodia
   }
+  axios({url : 'https://ekycportaldemo.innov8tif.com/api/ekyc/okayid', method : 'POST',
+  data : JSON.stringify(payload), responseType : 'json', headers: {'Content-Type': 'application/json'}})
+  .then((result) => {
+    res.json(result.data);
+  }).catch((err) => {
+    console.log(err);
+  });
+})
+
+app.post('/api/okay/face', async(req, res) => {
+  const body = req.body;
+  const payload = {
+    "journeyId": body.journeyId,
+    "imageBestBase64" : body.imageBestBase64,
+    "imageIdCardBase64" : body.imageIdCardBase64
+  }
+  axios({url : 'https://ekycportaldemo.innov8tif.com/api/ekyc/okayface', method : 'POST',
+  data : JSON.stringify(payload), responseType : 'json', headers: {'Content-Type': 'application/json'}})
+  .then((result) => {
+    res.json(result.data);
+  }).catch((err) => {
+    console.log(err);
+  });
+})
+
+app.post('/api/okay/doc', async(req, res) => {
+  const body = req.body;
+  const payload = {
+    "journeyId":body.journeyId,
+    "type": body.type,
+    "idImageBase64Image": body.idImageBase64Image,
+    "version": body.version,
+    "docType": body.docType
+  }
+  axios({url : 'https://ekycportaldemo.innov8tif.com/api/ekyc/okaydoc', method : 'POST',
+  data : JSON.stringify(payload), responseType : 'json', headers: {'Content-Type': 'application/json'}})
+  .then((result) => {
+    res.json(result.data);
+  }).catch((err) => {
+    console.log(err);
+  });
+})
+
+app.post('/api/okay/scorecard', async(req, res) => {
+  const body = req.body;
+  const payload = {
+    "journeyId":body.journeyId,
+  }
+  axios({url : 'https://ekycportaldemo.innov8tif.com/api/ekyc/scorecard', method : 'POST',
+  data : JSON.stringify(payload), responseType : 'json', headers: {'Content-Type': 'application/json'}})
+  .then((result) => {
+    res.json(result.data);
+  }).catch((err) => {
+    console.log(err);
+  });
 })
 
 // The "catchall" handler: for any request that doesn't
