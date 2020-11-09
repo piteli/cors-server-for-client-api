@@ -2,11 +2,15 @@ const express = require('express');
 const path = require('path');
 const generatePassword = require('password-generator');
 const axios = require('axios');
-
+var bodyParser = require('body-parser');
 const app = express();
+// const { createProxyMiddleware } = require('http-proxy-middleware');
+// const apiProxy = createProxyMiddleware('/api', {target: 'https://ekycportaldemo.innov8tif.com', changeOrigin: true});
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(bodyParser.json());
+// app.use(apiProxy);
 
 // Put all API endpoints under '/api'
 app.get('/api/passwords', (req, res) => {
@@ -23,6 +27,18 @@ app.get('/api/passwords', (req, res) => {
   console.log(`Sent ${count} passwords`);
 });
 
+app.post('/api/okay/get-journey-id', async(req, res) => {
+  const body = req.body;
+  const username = body.username;
+  const password = body.password;
+  try{
+    const response = await axios.post('https://ekycportaldemo.innov8tif.com/api/ekyc/journeyid', { username, password });
+    res.json(response);
+  }catch(e){
+    res.json(e);
+  }
+})
+
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
@@ -32,9 +48,6 @@ app.get('*', (req, res) => {
 app.get('/cors-handler', async(req, res) => {
   const url = req.query.url;
   const body = req.query.body;
-  console.log(url);
-  console.log(body);
-  return;
   try{
     const data = await axios.get(url);
   }catch(e){
