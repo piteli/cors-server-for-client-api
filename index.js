@@ -4,12 +4,22 @@ const generatePassword = require('password-generator');
 const axios = require('axios');
 var bodyParser = require('body-parser');
 const app = express();
+var FormData = require('form-data');
+var multer = require('multer');
+var upload = multer();
 // const { createProxyMiddleware } = require('http-proxy-middleware');
 // const apiProxy = createProxyMiddleware('/api', {target: 'https://ekycportaldemo.innov8tif.com', changeOrigin: true});
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit : '50mb'}));
+app.use(bodyParser.urlencoded({
+  extended: false,
+  limit: '50mb'
+}));
+app.use(upload.array()); 
+app.use(express.static('public'));
+
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -58,21 +68,22 @@ app.post('/api/okay/id', async(req, res) => {
   axios({url : 'https://ekycportaldemo.innov8tif.com/api/ekyc/okayid', method : 'POST',
   data : JSON.stringify(payload), responseType : 'json', headers: {'Content-Type': 'application/json'}})
   .then((result) => {
+    console.log('here is a result of okay ID');
     res.json(result.data);
   }).catch((err) => {
     console.log(err);
   });
 })
 
-app.post('/api/okay/face', async(req, res) => {
+app.post('/api/okay/face', (req, res) => {
   const body = req.body;
-  const payload = {
-    "journeyId": body.journeyId,
-    "imageBestBase64" : body.imageBestBase64,
-    "imageIdCardBase64" : body.imageIdCardBase64
-  }
+  let formData = new FormData();
+  formData.append('journeyId', body.journeyId);
+  formData.append('imageBestBase64', body.imageBestBase64);
+  formData.append('imageIdCardBase64', body.imageIdCardBase64);
+  formData.append('livenessDetection', body.livenessDetection);
   axios({url : 'https://ekycportaldemo.innov8tif.com/api/ekyc/okayface', method : 'POST',
-  data : JSON.stringify(payload), responseType : 'json', headers: {'Content-Type': 'application/json'}})
+  data : formData, responseType : 'json', headers: {'Content-Type': `multipart/form-data;boundary=${formData.getBoundary()}`}})
   .then((result) => {
     res.json(result.data);
   }).catch((err) => {
@@ -100,11 +111,8 @@ app.post('/api/okay/doc', async(req, res) => {
 
 app.post('/api/okay/scorecard', async(req, res) => {
   const body = req.body;
-  const payload = {
-    "journeyId":body.journeyId,
-  }
-  axios({url : 'https://ekycportaldemo.innov8tif.com/api/ekyc/scorecard', method : 'POST',
-  data : JSON.stringify(payload), responseType : 'json', headers: {'Content-Type': 'application/json'}})
+  axios({url : 'https://ekycportaldemo.innov8tif.com/api/ekyc/scorecard?journeyId=' + body.journeyId, method : 'GET',
+  responseType : 'json', headers: {'Content-Type': 'application/json'}})
   .then((result) => {
     res.json(result.data);
   }).catch((err) => {
